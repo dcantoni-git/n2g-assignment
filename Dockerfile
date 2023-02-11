@@ -17,10 +17,8 @@ RUN python -m venv /py && \
     if [ $DEV = "true" ]; \
         then /py/bin/pip install -r /tmp/requirements.dev.txt ; \
     fi && \
-
     # Remove tmp directory to keep the image lightweight
     rm -rf /tmp && \
-
     # Create a user with no password in order not to use the root user of the base image, for security reasons
     adduser \
         --disabled-password \
