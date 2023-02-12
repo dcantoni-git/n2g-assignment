@@ -12,3 +12,54 @@ services:
       - ./app:/app
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DB_HOST=candidaterds.n2g-dev.net
+      - DB_NAME=cand_upk1
+      - DB_USER=cand_upk1
+      - DB_PASS=E66YEUd7b0lozdzd
+    depends_on:
+      - db
+
+  db:
+    image: mysql:latest
+    volumes:
+      - dev-db-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=E66YEUd7b0lozdzd
+      - MYSQL_DB_HOST=candidaterds.n2g-dev.net
+      - MYSQL_DB_NAME=cand_upk1
+      - MYSQL_DB_USERNAME=cand_upk1
+      - MYSQL_DB_PASSWORD=E66YEUd7b0lozdzd
+    ports:
+      - "3306:3306"
+    # hostname: candidaterds.n2g-dev.net
+
+volumes:
+  dev-db-data:
+
+
+#     environment:
+#       - MYSQL_ROOT_PASSWORD=E66
+#       - DB_HOST=db
+#       - DB_NAME=devdb
+#       - DB_USER=devuser
+#       - DB_PASS=changeme
+#     depends_on:
+#       - db
+
+#   db:
+#     # image: postgres:13-alpine
+#     # volumes:
+#     #   - dev-db-data:/var/lib/postgresql/data
+#     image: mysql:5.7.38
+#     volumes:
+#       - dev-db-data:/var/lib/mysql  
+
+#     environment:
+#       - MYSQL_ROOT_PASSWORD=E66
+#       - MYSQL_DB=devdb
+#       - MYSQL_USER=devuser
+#       - MYSQL_PASSWORD=changeme
+
+# volumes:
+#   dev-db-data:
