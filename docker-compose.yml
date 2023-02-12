@@ -12,48 +12,32 @@ services:
       - ./app:/app
     command: >
       sh -c "python manage.py wait_for_db &&
-            python manage.py migrate &&
-            python manage.py runserver 0.0.0.0:8000"
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     environment:
-      # - DB_HOST=candidaterds.n2g-dev.net
-      - DB_HOST=test_db
-      - DB_NAME=test_cand_upk1
+      - DB_HOST=candidaterds.n2g-dev.net
+      - DB_NAME=cand_upk1
       - DB_USER=cand_upk1
       - DB_PASS=E66YEUd7b0lozdzd
     depends_on:
-      - test_db
-      # - db
+      - db
 
-  # db:
-  #   image: mysql:latest
-  #   volumes:
-  #     - dev-db-data:/var/lib/mysql
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=E66YEUd7b0lozdzd
-  #     - MYSQL_DB_HOST=candidaterds.n2g-dev.net
-  #     - MYSQL_DB_NAME=cand_upk1
-  #     - MYSQL_DB_USERNAME=cand_upk1
-  #     - MYSQL_DB_PASSWORD=E66YEUd7b0lozdzd
-  #   ports:
-  #     - "3306:3306"
-  #   # hostname: candidaterds.n2g-dev.net
-
-  test_db:
+  db:
     image: mysql:latest
-    # command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - dev-db-data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=E66YEUd7b0lozdzd
-      - MYSQL_DATABASE=test_cand_upk1
-      - MYSQL_USER=cand_upk1
-      - MYSQL_PASSWORD=E66YEUd7b0lozdzd
-    volumes:
-      - test-db-data:/var/lib/mysql
+      - MYSQL_DB_HOST=candidaterds.n2g-dev.net
+      - MYSQL_DB_NAME=cand_upk1
+      - MYSQL_DB_USERNAME=cand_upk1
+      - MYSQL_DB_PASSWORD=E66YEUd7b0lozdzd
     ports:
       - "3306:3306"
+    # hostname: candidaterds.n2g-dev.net
 
 volumes:
-  # dev-db-data:
-  test-db-data:
+  dev-db-data:
 
 
 #     environment:
@@ -71,7 +55,7 @@ volumes:
 #     #   - dev-db-data:/var/lib/postgresql/data
 #     image: mysql:5.7.38
 #     volumes:
-#       - dev-db-data:/var/lib/mysql
+#       - dev-db-data:/var/lib/mysql  
 
 #     environment:
 #       - MYSQL_ROOT_PASSWORD=E66

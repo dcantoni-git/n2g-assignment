@@ -1,5 +1,4 @@
-FROM python:3.11.2
-# FROM python:3.8
+FROM python:3.11.2-alpine3.17
 LABEL maintainer="Dimitris Antoniadis"
 
 ENV PYTHONUNBUFFERED 1
@@ -14,7 +13,7 @@ ARG DEV=false
 # Create a virtual environment and install requirements and new version of pip
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
-    # apk add --update --no-cache build-base mariadb-dev python3-dev && \
+    apk add --update --no-cache build-base mariadb-dev python3-dev && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     if [ $DEV = "true" ]; \
         then /py/bin/pip install -r /tmp/requirements.dev.txt ; \
@@ -25,8 +24,8 @@ RUN python -m venv /py && \
     adduser \
         --disabled-password \
         --no-create-home \
-        django-user
-
+        django-user 
+        
 ENV PATH="/py/bin:$PATH"
 
 USER django-user

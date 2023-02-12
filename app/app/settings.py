@@ -77,44 +77,16 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'HOST': os.environ.get('DB_HOST'),
-    #     'PORT': '3306',
-    #     'NAME': os.environ.get('DB_NAME'),
-    #     'USER': os.environ.get('DB_USER'),
-    #     'PASSWORD': os.environ.get('DB_PASS'),
-    #     'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1"},
-    #     # 'TEST': {
-    #     #     'NAME': 'test',
-    #     # },
-    #     'TEST_NAME': 'test',
-    # },
-    # 'test': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'HOST': 'test_db',
-    #     'PORT': '3306',
-    #     'NAME': 'test_cand_upk1',
-    #     'USER': os.environ.get('DB_USER'),
-    #     'PASSWORD': os.environ.get('DB_PASS'),
-    #     # 'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1"},
-    # },
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': 'test_db',
-        'PORT': '3306',
-        'NAME': 'test_cand_upk1',
-        'USER': 'cand_upk1',
-        'PASSWORD': 'E66YEUd7b0lozdzd',
-        # 'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1"},
-        # 'TEST': {
-        #     'NAME': 'test',
-        # },
-        # 'TEST_NAME': 'test',
-    },
+        'HOST': os.environ.get('DB_HOST'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASS'),
+        'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1"},
+    }
 }
 
-# DATABASE_ROUTERS = ['django.test.sequential_database_router.SequentialDatabaseRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
