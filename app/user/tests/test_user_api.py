@@ -11,6 +11,7 @@ from rest_framework import status
 
 CREATE_USER_URL = reverse('user:create')
 TOKEN_URL = reverse('user:token')
+MYPROFILE_URL = reverse('user:myprofile')
 
 
 def create_user(**params):
@@ -78,3 +79,54 @@ class PublicUserApiTests(TestCase):
 
         self.assertNotIn('token', res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_user_unauthorized(self):
+        """Test authentication is required for users."""
+        res = self.client.get(MYPROFILE_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class PrivateUserApiTests(TestCase):
+    """Test API requests that require authentication."""
+
+    def setUp(self):
+        self.user_info = {
+            'email': 'test@example.com',
+            'username': 'Test Username',
+            'password': 'Test123!@#',
+        }
+        self.user = create_user(**self.user_info)
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def test_retrieve_profile_success(self):
+        """Test retrieving profile for logged in user."""
+        res = self.client.get(MYPROFILE_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, {
+            'username': self.user.username,
+            'email': self.user.email,
+        })
+
+    def test_post_myprofile_not_allowed(self):
+        """Test POST is not allowed for the myprofile endpoint."""
+        res = self.client.post(MYPROFILE_URL, {})
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_update_user_profile(self):
+        """Test updating the user profile for the authenticated user."""
+        new_user_info = {
+            'email': 'test@example.com',
+            'username': 'Test Username',
+            'password': 'NewPass123!@#',
+        }
+
+        res = self.client.patch(MYPROFILE_URL, new_user_info)
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, new_user_info['username'])
+        self.assertTrue(self.user.check_password(new_user_info['password']))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
