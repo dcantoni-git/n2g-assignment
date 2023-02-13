@@ -10,7 +10,7 @@ class ModelTests(TestCase):
     """Test models."""
     using_db = 'test_db'
     def test_create_user_with_email_successful(self):
-        """Test creating a user with an email is successful."""
+        """Test creating a user with an email is successful"""
         email = 'test@example.com'
         username = 'test'
         password = 'testpass123'
