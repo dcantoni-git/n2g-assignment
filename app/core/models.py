@@ -2,6 +2,7 @@ from django.contrib.auth.models import UserManager
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
+from django.conf import settings
 # from django.core.validators import MaxValueValidator, MinValueValidator
 # import datetime
 
@@ -53,3 +54,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         """Return string representation of user"""
         return str(self.email)
+
+
+class Message(models.Model):
+    """Message object."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+    )
+    gatewayEui = models.CharField(max_length=255)
+    profileId = models.CharField(max_length=255)
+    endpointId = models.CharField(max_length=255)
+    clusterId = models.CharField(max_length=255)
+    attributeId = models.CharField(max_length=255)
+    value = models.IntegerField()
+    timestamp = models.BigIntegerField()
+
+    def __str__(self):
+        return self.gatewayEui
