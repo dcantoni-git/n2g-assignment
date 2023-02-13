@@ -10,6 +10,7 @@ from rest_framework import status
 
 
 CREATE_USER_URL = reverse('user:create')
+TOKEN_URL = reverse('user:token')
 
 
 def create_user(**params):
@@ -22,7 +23,7 @@ class PublicUserApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.payload = {
+        self.user_info = {
             'email': 'test@example.com',
             'username': 'Test Username',
             'password': 'Test123!@#',
@@ -30,24 +31,50 @@ class PublicUserApiTests(TestCase):
 
     def test_create_user_success(self):
         """Test creating a user is successful."""
-        res = self.client.post(CREATE_USER_URL, self.payload)
+        res = self.client.post(CREATE_USER_URL, self.user_info)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        user = get_user_model().objects.get(email=self.payload['email'])
-        self.assertTrue(user.check_password(self.payload['password']))
+        user = get_user_model().objects.get(email=self.user_info['email'])
+        self.assertTrue(user.check_password(self.user_info['password']))
         self.assertNotIn('password', res.data)
 
     def test_user_with_email_exists_error(self):
         """Test error returned if user with email exists."""
-        create_user(**self.payload)
-        res = self.client.post(CREATE_USER_URL, self.payload)
+        create_user(**self.user_info)
+        res = self.client.post(CREATE_USER_URL, self.user_info)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_password_too_short_error(self):
         """Test an error is returned if password is too simple."""
-        self.payload['password'] = 'simple'
-        res = self.client.post(CREATE_USER_URL, self.payload)
+        self.user_info['password'] = 'simple'
+        res = self.client.post(CREATE_USER_URL, self.user_info)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         user_exists = get_user_model().objects.filter(
-            email=self.payload['email']
+            email=self.user_info['email']
         ).exists()
         self.assertFalse(user_exists)
+
+    def test_create_token_for_user(self):
+        """Test generates token for valid credentials."""
+        create_user(**self.user_info)
+
+        user_credentials = {
+            'email': self.user_info['email'],
+            'password': self.user_info['password'],
+        }
+        res = self.client.post(TOKEN_URL, user_credentials)
+
+        self.assertIn('token', res.data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_create_token_bad_credentials(self):
+        """Test returns error if credentials invalid."""
+        create_user(**self.user_info)
+
+        bad_credentials = {
+            'email': 'test@example.com',
+            'password': 'wrongpass'
+            }
+        res = self.client.post(TOKEN_URL, bad_credentials)
+
+        self.assertNotIn('token', res.data)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
