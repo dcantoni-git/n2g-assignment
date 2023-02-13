@@ -2,8 +2,8 @@ from django.contrib.auth.models import UserManager
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
-from django.core.validators import MaxValueValidator, MinValueValidator
-import datetime
+# from django.core.validators import MaxValueValidator, MinValueValidator
+# import datetime
 
 
 class UserProfileManager(UserManager):
