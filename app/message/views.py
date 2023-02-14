@@ -26,9 +26,9 @@ class ConsumeDataView(APIView):
         """Returns a list of APIView features"""
 
         # Get data from the external API.
-        external_api_url = 'https://xqy1konaa2.execute-api.eu-west-1.amazonaws'
+        external_api_url = 'https://xqy1konaa2.execute-api.eu-west-1.amazonaws.com/prod/results'  # noqa: E501
         try:
-            response = requests.get(external_api_url+'.com/prod/results')
+            response = requests.get(external_api_url)
             response.raise_for_status()
             data = response.json()
             return Response(data)
