@@ -8,32 +8,32 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
-CONSUME_DATA_URL = reverse('message:consume_data')
-STORE_DATA_URL = reverse('message:store_data')
-SHOW_DATA_URL = reverse('message:show_data')
+SEND_TO_EXCHANGE_URL = reverse('message:send_to_exchange')
+STORE_TO_DATABASE_URL = reverse('message:store_to_database')
+SHOW_STORED_MESSAGES_URL = reverse('message:show_stored_messages')
 
 
-class PublicRecipeAPITests(TestCase):
+class PublicMessageAPITests(TestCase):
     """Test unauthenticated API requests."""
 
     def setUp(self):
         self.client = APIClient()
 
-    # def test_auth_required_consume_data(self):
-    #     """Test auth is required to consume data."""
-    #     res = self.client.get(CONSUME_DATA_URL)
+    def test_auth_required_consume_data(self):
+        """Test auth is required to consume data."""
+        res = self.client.get(SEND_TO_EXCHANGE_URL)
 
-    #     self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     # def test_auth_required_store_data(self):
     #     """Test auth is required to store data."""
-    #     res = self.client.get(STORE_DATA_URL)
+    #     res = self.client.get(STORE_TO_DATABASE_URL)
 
     #     self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_auth_required_show_data(self):
         """Test auth is required to show data.."""
-        res = self.client.get(SHOW_DATA_URL)
+        res = self.client.get(SHOW_STORED_MESSAGES_URL)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 

@@ -9,7 +9,7 @@ from message import views
 app_name = 'message'
 
 urlpatterns = [
-    path('consume-data/', views.ConsumeDataView.as_view(), name='consume_data'),  # noqa: E501
-    path('store-data/', views.StoreDataView.as_view(), name='store_data'),
-    path('show-data/', views.ShowDataView.as_view(), name='show_data'),
+    path('send-to-exchange/', views.SendToExchangeView.as_view(), name='send_to_exchange'),  # noqa: E501
+    path('store-to-database/', views.StoreToDatabaseView.as_view(), name='store_to_database'),  # noqa: E501
+    path('show-stored-messages/', views.ShowStoredMessagesView.as_view(), name='show_stored_messages'),  # noqa: E501
 ]
