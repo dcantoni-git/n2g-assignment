@@ -1,8 +1,8 @@
 """
 Views for the message API.
 """
-from rest_framework import generics, authentication, permissions
-# , status
+from rest_framework import authentication, permissions, viewsets
+from rest_framework.pagination import PageNumberPagination
 # from rest_framework.authtoken.views import ObtainAuthToken
 # from rest_framework.settings import api_settings
 from message.serializers import MessageSerializer
@@ -37,7 +37,7 @@ def connect_to_rabbitmq():
     except Exception as e:
         # Regular Expression to find the status code.
         # Not included! Uncertain that exists in every exception message
-        # status_code = re.findall('\d{3}',str(e))
+        # status_code = re.findall('\d{3}',str(e))[0]
         error_msg = {
             'error_msg': str(e)
         }
@@ -141,7 +141,7 @@ class StoreToDatabaseView(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, format=None):
+    def get(self, request, time, format=None):
         """Get the data from the RabbitMQ queue and store them to database."""
         connection, channel = connect_to_rabbitmq()
         try:
@@ -204,13 +204,18 @@ class StoreToDatabaseView(APIView):
             return Response(consume_msg, status.HTTP_200_OK)
 
 
-class ShowStoredMessagesView(generics.CreateAPIView):
+class ShowStoredMessagesView(APIView):
     """View for manage showing the stored messages to the user."""
     serializer_class = serializers.MessageSerializer
-    queryset = Message.objects.all()
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        """Retrieve messages for authenticated user."""
-        return self.queryset.filter(user=self.request.user).order_by('-id')
+    def get(self, request, format=None):
+        """Show the stored messages in paginated format (100 messages per page)."""
+        queryset = models.Message.objects.filter(user=request.user).order_by('-timestamp')
+        serializer = self.serializer_class(queryset, many=True)
+        paginator = PageNumberPagination()
+        paginated_queryset = paginator.paginate_queryset(queryset, request)
+        serializer = self.serializer_class(paginated_queryset, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
