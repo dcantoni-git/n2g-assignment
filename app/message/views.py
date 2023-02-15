@@ -104,26 +104,35 @@ class SendToExchangeView(APIView):
                 'details': str(e)
             }
             return Response(error_msg, status.HTTP_400_BAD_REQUEST)
-        data.update({'routing_key': routing_key})
         data.update({'publish_msg': publish_msg})
 
         return Response(data, status.HTTP_200_OK)
 
 
-def store_message_to_database(msg_dict: dict):
-    user_id  = msg_dict['user_id']
-    gatewayEui_hex = hex(msg_dict['gatewayEui'])
-    profileId_hex = hex(msg_dict['profileId'])
-    endpointId_hex = int(msg_dict['endpointId'], 16)
-    clusterId_hex = int(msg_dict['clusterId'], 16)
-    attributeId_hex = int(msg_dict['attributeId'], 16)
-    value = msg_dict['user_id']
-    timestamp = msg_dict['timestamp']
-    message = models.Message()
+# def store_message_to_database(msg_dict: dict):
+#     user_id = msg_dict['user_id']
+#     gatewayEui_hex = hex(msg_dict['gatewayEui'])
+#     profileId_hex = hex(msg_dict['profileId'])
+#     endpointId_hex = int(msg_dict['endpointId'], 16)
+#     clusterId_hex = int(msg_dict['clusterId'], 16)
+#     attributeId_hex = int(msg_dict['attributeId'], 16)
+#     value = msg_dict['user_id']
+#     timestamp = msg_dict['timestamp']
+#     message = models.Message(
+#         user=user_id,
+#         gatewayEui=gatewayEui_hex,
+#         profileId=profileId_hex,
+#         endpointId=endpointId_hex,
+#         clusterId=clusterId_hex,
+#         attributeId=attributeId_hex,
+#         value=value,
+#         timestamp=timestamp
+#     )
+#     message.save()
 
-
-
-
+# def normalize_hex_value(hex_value: str, length: int):
+#     norm_hex_value = "0x" + hex_value[2:].zfill(length-2)
+#     return norm_hex_value
 
 
 class StoreToDatabaseView(APIView):
@@ -151,14 +160,48 @@ class StoreToDatabaseView(APIView):
             return Response(error_msg, status.HTTP_400_BAD_REQUEST)
 
         if body is not None:
-            res=[json.loads(body), method.routing_key]
-            return Response(res, status.HTTP_200_OK)  
+            body_dict = json.loads(body)
+            routing_key_list = method.routing_key.split('.')
+            data = {
+                'gatewayEui': hex(int(routing_key_list[0]))[2:],
+                'profileId': '0x' + hex(int(routing_key_list[1]))[2:].zfill(4),
+                'endpointId': '0x' + hex(int(routing_key_list[2]))[2:].zfill(2),
+                'clusterId': '0x' + hex(int(routing_key_list[3]))[2:].zfill(4),
+                'attributeId': '0x' + hex(int(routing_key_list[4]))[2:].zfill(4),
+                'value': body_dict['value'],
+                'timestamp': body_dict['timestamp']
+            }
+
+            try:
+                user = models.User.objects.get(id=body_dict['user_id'])
+                message = models.Message(
+                    user=user,
+                    gatewayEui=data['gatewayEui'],
+                    profileId=data['profileId'],
+                    endpointId=data['endpointId'],
+                    clusterId=data['clusterId'],
+                    attributeId=data['attributeId'],
+                    value=data['value'],
+                    timestamp=data['timestamp']
+                )
+                message.save()
+
+                consume_msg = {
+                'consume_msg': 'Message was stored in the database successfully!'
+                }
+                data.update(consume_msg)
+                return Response(data, status.HTTP_200_OK)
+            except Exception as e:
+                error_msg = {
+                    'db_error_msg': str(e)
+                }
+                return Response(error_msg, status.HTTP_400_BAD_REQUEST)
+
         else:
             consume_msg = {
-                'consume_msg': 'No messages in the queue!' 
+                'consume_msg': 'No messages in the queue!'
             }
-            return Response(consume_msg, status.HTTP_200_OK)     
-                 
+            return Response(consume_msg, status.HTTP_200_OK)
 
 
 class ShowStoredMessagesView(generics.CreateAPIView):
