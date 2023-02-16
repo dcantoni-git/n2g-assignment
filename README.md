@@ -4,7 +4,7 @@ Assignment for the backend engineer position.
 # App Description
 I built a REST API using Python Django and the Django REST Framework. I used Docker to containerize the application. I also used GitHub Actions and Workflows for automatic testing and linting. The unit tests were made with a mysql local database, because i didn't have permissions to create a test database on the net2grid host. When the development was finished, I used the remote net2grid database that I wes given and did manual tests.
 
-To run the application you need to configure the .env files (were sent via e-amil) and run "docker-compose build" and "docker-compose up".
+To run the application you need to configure the .env files (were sent via e-mail) and run "docker-compose build" and "docker-compose up".
 
 In order to demontrate some other features, such as token authentication, table relations, filtering and pagination, I created a "user" app. Because the API had no authentication, I thought it would be a good practice to add authentication and tracability for the messages. That means the application stores the id of the user who used the API and it offers the ability to retrieve the messages that were sent by each user. 
 
