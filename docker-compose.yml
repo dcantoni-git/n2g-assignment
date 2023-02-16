@@ -15,27 +15,29 @@ services:
             python manage.py migrate &&
             python manage.py runserver 0.0.0.0:8000"
     environment:
-      - DB_HOST=candidaterds.n2g-dev.net
-      - DB_NAME=cand_upk1
-      - DB_USER=cand_upk1
-      - DB_PASS=E66YEUd7b0lozdzd
+      - DB_HOST=${MYSQL_DB_HOST}
+      - DB_NAME=${MYSQL_DB_NAME}
+      - DB_USER=${MYSQL_DB_USERNAME}
+      - DB_PASS=${MYSQL_DB_PASSWORD}
     depends_on:
       - n2g-db
-      # - mysql_localdb
+      # - mysql_localdb  (Used for the unit tests)
+    env_file:
+      - .env
 
   n2g-db:
     image: mysql:latest
-    # volumes:
-    #   - dev-db-data:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=E66YEUd7b0lozdzd
-      - MYSQL_DB_HOST=candidaterds.n2g-dev.net
-      - MYSQL_DB_NAME=cand_upk1
-      - MYSQL_DB_USERNAME=cand_upk1
-      - MYSQL_DB_PASSWORD=E66YEUd7b0lozdzd
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DB_HOST=${MYSQL_DB_HOST}
+      - MYSQL_DB_NAME=${MYSQL_DB_NAME}
+      - MYSQL_DB_USERNAME=${MYSQL_DB_USERNAME}
+      - MYSQL_DB_PASSWORD=${MYSQL_DB_PASSWORD}
     ports:
       - "3306:3306"
-    # hostname: candidaterds.n2g-dev.net
+    env_file:
+      - .env
+
   # mysql_localdb:
   #   image: mysql:latest
   #   volumes:
@@ -49,32 +51,3 @@ services:
   #     - "3306:3306"
     # hostname: candidaterds.n2g-dev.net
 
-# volumes:
-#   local-db-data:
-
-
-#     environment:
-#       - MYSQL_ROOT_PASSWORD=E66
-#       - DB_HOST=db
-#       - DB_NAME=devdb
-#       - DB_USER=devuser
-#       - DB_PASS=changeme
-#     depends_on:
-#       - db
-
-#   db:
-#     # image: postgres:13-alpine
-#     # volumes:
-#     #   - dev-db-data:/var/lib/postgresql/data
-#     image: mysql:5.7.38
-#     volumes:
-#       - dev-db-data:/var/lib/mysql
-
-#     environment:
-#       - MYSQL_ROOT_PASSWORD=E66
-#       - MYSQL_DB=devdb
-#       - MYSQL_USER=devuser
-#       - MYSQL_PASSWORD=changeme
-
-# volumes:
-#   dev-db-data:
