@@ -1,27 +1,18 @@
 """
 Views for the message API.
 """
-from rest_framework import authentication, permissions, viewsets
+from rest_framework import authentication, permissions, status
 from rest_framework.pagination import PageNumberPagination
-# from rest_framework.authtoken.views import ObtainAuthToken
-# from rest_framework.settings import api_settings
-from message.serializers import MessageSerializer
-# from rest_framework import viewsets
-from core.models import Message
-from message import serializers
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from message.serializers import MessageSerializer
+from core import models
+from message import serializers
 import requests
 from requests.exceptions import HTTPError
-from rest_framework import status
 import pika
 import json
-from core import models
-# import time
-# import re
-# import mysql.connector
 
 
 def connect_to_rabbitmq():
@@ -43,6 +34,7 @@ def connect_to_rabbitmq():
         }
         return Response(error_msg, status.HTTP_400_BAD_REQUEST)
     return connection, channel
+
 
 class SendToExchangeView(APIView):
     """Consumes data from the API and send them to RabbitMQ exchange."""
@@ -109,45 +101,52 @@ class SendToExchangeView(APIView):
         return Response(data, status.HTTP_200_OK)
 
 
-# def store_message_to_database(msg_dict: dict):
-#     user_id = msg_dict['user_id']
-#     gatewayEui_hex = hex(msg_dict['gatewayEui'])
-#     profileId_hex = hex(msg_dict['profileId'])
-#     endpointId_hex = int(msg_dict['endpointId'], 16)
-#     clusterId_hex = int(msg_dict['clusterId'], 16)
-#     attributeId_hex = int(msg_dict['attributeId'], 16)
-#     value = msg_dict['user_id']
-#     timestamp = msg_dict['timestamp']
-#     message = models.Message(
-#         user=user_id,
-#         gatewayEui=gatewayEui_hex,
-#         profileId=profileId_hex,
-#         endpointId=endpointId_hex,
-#         clusterId=clusterId_hex,
-#         attributeId=attributeId_hex,
-#         value=value,
-#         timestamp=timestamp
-#     )
-#     message.save()
-
-# def normalize_hex_value(hex_value: str, length: int):
-#     norm_hex_value = "0x" + hex_value[2:].zfill(length-2)
-#     return norm_hex_value
-
-
 class StoreToDatabaseView(APIView):
     """Get the data from the RabbitMQ queue and store them to database."""
     serializer_class = MessageSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, time, format=None):
+    def get(self, request, number_of_messages, format=None):
         """Get the data from the RabbitMQ queue and store them to database."""
         connection, channel = connect_to_rabbitmq()
+        messages_stored_in_db = 0
         try:
-            method, header, body = channel.basic_get(queue='cand_upk1_results', auto_ack=True)
+            for i in range(number_of_messages):
+                method_frame, header, body = channel.basic_get(queue='cand_upk1_results', auto_ack=True)
+                if body is not None:
+                    body_dict = json.loads(body)
+                    routing_key_list = method_frame.routing_key.split('.')
+                    user = models.User.objects.get(id=body_dict['user_id'])
+                    message = models.Message(
+                        user=user,
+                        gatewayEui=hex(int(routing_key_list[0]))[2:],
+                        profileId='0x' + hex(int(routing_key_list[1]))[2:].zfill(4),
+                        endpointId='0x' + hex(int(routing_key_list[2]))[2:].zfill(2),
+                        clusterId='0x' + hex(int(routing_key_list[3]))[2:].zfill(4),
+                        attributeId='0x' + hex(int(routing_key_list[4]))[2:].zfill(4),
+                        value=body_dict['value'],
+                        timestamp=body_dict['timestamp']
+                    )
+                    message.save()
+                    messages_stored_in_db += 1
+
+                    if messages_stored_in_db == number_of_messages:
+                        break
+
             channel.close()
             connection.close()
+            if messages_stored_in_db == 0:
+                db_msg = "There are no messages in the queue."
+            elif messages_stored_in_db == 1:
+                db_msg = "1 message was stored in the database."
+            else:
+                db_msg = f'{messages_stored_in_db} message were stored in the database.'
+            res = {
+                'db_msg': db_msg
+            }
+            return Response(res, status.HTTP_200_OK)
+
         except ValueError as e:
             error_msg = {
             'value_error': str(e)
@@ -159,49 +158,56 @@ class StoreToDatabaseView(APIView):
             }
             return Response(error_msg, status.HTTP_400_BAD_REQUEST)
 
-        if body is not None:
+
+class StoreToDatabaseContinuousView(APIView):
+    """Establish a continuous listening to the results queue. NOT RECOMMENDED, FOR DEMO PURPOSES ONLY! It is terminated manually."""
+    serializer_class = MessageSerializer
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        """Get the data from the RabbitMQ queue and store them to database."""
+        connection, channel = connect_to_rabbitmq()
+
+        def on_message_callback(ch, method, properties, body):
+            # raise pika.exceptions.StopConsuming
+            """Callback that handles the message. It stores it to database and then send the ack message for the next message."""
             body_dict = json.loads(body)
             routing_key_list = method.routing_key.split('.')
-            data = {
-                'gatewayEui': hex(int(routing_key_list[0]))[2:],
-                'profileId': '0x' + hex(int(routing_key_list[1]))[2:].zfill(4),
-                'endpointId': '0x' + hex(int(routing_key_list[2]))[2:].zfill(2),
-                'clusterId': '0x' + hex(int(routing_key_list[3]))[2:].zfill(4),
-                'attributeId': '0x' + hex(int(routing_key_list[4]))[2:].zfill(4),
-                'value': body_dict['value'],
-                'timestamp': body_dict['timestamp']
-            }
-
             try:
                 user = models.User.objects.get(id=body_dict['user_id'])
                 message = models.Message(
                     user=user,
-                    gatewayEui=data['gatewayEui'],
-                    profileId=data['profileId'],
-                    endpointId=data['endpointId'],
-                    clusterId=data['clusterId'],
-                    attributeId=data['attributeId'],
-                    value=data['value'],
-                    timestamp=data['timestamp']
+                    gatewayEui=hex(int(routing_key_list[0]))[2:],
+                    profileId='0x' + hex(int(routing_key_list[1]))[2:].zfill(4),
+                    endpointId='0x' + hex(int(routing_key_list[2]))[2:].zfill(2),
+                    clusterId='0x' + hex(int(routing_key_list[3]))[2:].zfill(4),
+                    attributeId='0x' + hex(int(routing_key_list[4]))[2:].zfill(4),
+                    value=body_dict['value'],
+                    timestamp=body_dict['timestamp']
                 )
                 message.save()
 
-                consume_msg = {
-                'consume_msg': 'Message was stored in the database successfully!'
-                }
-                data.update(consume_msg)
-                return Response(data, status.HTTP_200_OK)
+                db_msg = 'Message was stored in the database successfully!'
+                print(db_msg)
+
             except Exception as e:
                 error_msg = {
                     'db_error_msg': str(e)
                 }
-                return Response(error_msg, status.HTTP_400_BAD_REQUEST)
+                raise(error_msg)
+            ch.basic_ack(delivery_tag=method.delivery_tag)
 
-        else:
-            consume_msg = {
-                'consume_msg': 'No messages in the queue!'
+        try:
+            channel.basic_consume(queue='cand_upk1_results', on_message_callback=on_message_callback)
+            channel.start_consuming()
+
+        except Exception as e:
+            error_msg = {
+                'error_msg': str(e)
             }
-            return Response(consume_msg, status.HTTP_200_OK)
+            return Response(error_msg, status.HTTP_400_BAD_REQUEST)
+        return Response("Never reaches here!")
 
 
 class ShowStoredMessagesView(APIView):

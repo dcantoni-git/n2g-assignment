@@ -2,14 +2,14 @@
 Tests for the message API.
 """
 from django.test import TestCase
-# from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from rest_framework.test import APIClient
 from rest_framework import status
 
 SEND_TO_EXCHANGE_URL = reverse('message:send_to_exchange')
-STORE_TO_DATABASE_URL = reverse('message:store_to_database')
+STORE_TO_DATABASE_URL = reverse('message:store_to_database', args=[10])
 SHOW_STORED_MESSAGES_URL = reverse('message:show_stored_messages')
 
 
@@ -25,11 +25,11 @@ class PublicMessageAPITests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    # def test_auth_required_store_data(self):
-    #     """Test auth is required to store data."""
-    #     res = self.client.get(STORE_TO_DATABASE_URL)
+    def test_auth_required_store_data(self):
+        """Test auth is required to store data."""
+        res = self.client.get(STORE_TO_DATABASE_URL)
 
-    #     self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_auth_required_show_data(self):
         """Test auth is required to show data.."""
@@ -37,42 +37,32 @@ class PublicMessageAPITests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-# ΝΑ ΤΟ ΑΛΛΑΞΩ!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# class PrivateRecipeApiTests(TestCase):
-#     """Test authenticated API requests."""
 
-#     def setUp(self):
-#         self.client = APIClient()
-#         self.user = get_user_model().objects.create_user(
-#             'user@example.com',
-#             'testpass123',
-#         )
-#         self.client.force_authenticate(self.user)
+def create_user(**params):
+    """Create and return a new user."""
+    return get_user_model().objects.create_user(**params)
 
-#     def test_retrieve_recipes(self):
-#         """Test retrieving a list of recipes."""
-#         create_recipe(user=self.user)
-#         create_recipe(user=self.user)
 
-#         res = self.client.get(RECIPES_URL)
+class PrivateMessageAPITests(TestCase):
+    """Test authenticated API requests."""
 
-#         recipes = Recipe.objects.all().order_by('-id')
-#         serializer = RecipeSerializer(recipes, many=True)
-#         self.assertEqual(res.status_code, status.HTTP_200_OK)
-#         self.assertEqual(res.data, serializer.data)
+    def setUp(self):
+        self.user_info = {
+            'email': 'test@example.com',
+            'username': 'Test Username',
+            'password': 'Test123!@#',
+        }
+        self.user = create_user(**self.user_info)
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
 
-#     def test_recipe_list_limited_to_user(self):
-#         """Test list of recipes is limited to authenticated user."""
-#         other_user = get_user_model().objects.create_user(
-#             'other@example.com',
-#             'password123',
-#         )
-#         create_recipe(user=other_user)
-#         create_recipe(user=self.user)
+    def test_send_to_exchange(self):
+        """Test getting message from the external API and send it to exchange."""
+        res = self.client.get(SEND_TO_EXCHANGE_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-#         res = self.client.get(RECIPES_URL)
 
-#         recipes = Recipe.objects.filter(user=self.user)
-#         serializer = RecipeSerializer(recipes, many=True)
-#         self.assertEqual(res.status_code, status.HTTP_200_OK)
-#         self.assertEqual(res.data, serializer.data)
+    def test_store_to_database(self):
+        """Test that the messages were retrieved from the results queue and stored to database."""
+        res = self.client.get(STORE_TO_DATABASE_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
