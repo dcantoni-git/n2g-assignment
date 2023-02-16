@@ -1,4 +1,4 @@
-# n2g-assignment
+# n2g-assignment (Dimitris Antoniadis)
 Assignment for backend engineer position at net2grid.
 
 # App Description
