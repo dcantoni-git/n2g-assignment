@@ -14,10 +14,15 @@ from requests.exceptions import HTTPError
 import pika
 import json
 import time
+import environ
+
+
+env = environ.Env()
+environ.Env.read_env()
 
 
 def connect_to_rabbitmq():
-    rabbitmq_credentials = pika.PlainCredentials('cand_upk1', 'E66YEUd7b0lozdzd')  # noqa: E501
+    rabbitmq_credentials = pika.PlainCredentials(env('EXCHANGE'),env('EXCHANGE_PASS'))  # noqa: E501
     rabbitmq_params = pika.ConnectionParameters(
         host='candidatemq.n2g-dev.net',
         credentials=rabbitmq_credentials
