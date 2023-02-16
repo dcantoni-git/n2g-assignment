@@ -14,47 +14,43 @@ services:
       sh -c "python manage.py wait_for_db &&
             python manage.py migrate &&
             python manage.py runserver 0.0.0.0:8000"
-    # environment:
-    #   - DB_HOST=candidaterds.n2g-dev.net
-    #   - DB_NAME=cand_upk1
-    #   - DB_USER=cand_upk1
-    #   - DB_PASS=E66YEUd7b0lozdzd
-    # environment:
-    #   - DB_HOST=candidaterds.n2g-dev.net
-    #   - DB_NAME=cand_upk1
-    #   - DB_USER=cand_upk1
-    #   - DB_PASS=E66YEUd7b0lozdzd
-    depends_on:
-      - mysql_localdb
-
-  # db:
-  #   image: mysql:latest
-  #   volumes:
-  #     - dev-db-data:/var/lib/mysql
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=E66YEUd7b0lozdzd
-  #     - MYSQL_DB_HOST=candidaterds.n2g-dev.net
-  #     - MYSQL_DB_NAME=cand_upk1
-  #     - MYSQL_DB_USERNAME=cand_upk1
-  #     - MYSQL_DB_PASSWORD=E66YEUd7b0lozdzd
-  #   ports:
-  #     - "3306:3306"
-  #   # hostname: candidaterds.n2g-dev.net
-  mysql_localdb:
-    image: mysql:latest
-    volumes:
-      - local-db-data:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=FWE32fds!@#fd43FM4d
-      - MYSQL_DATABASE=mysql_localdb
-      # - MYSQL_USER=root
-      # - MYSQL_PASSWORD=FWE32fds!@#fd43FM4d
+      - DB_HOST=candidaterds.n2g-dev.net
+      - DB_NAME=cand_upk1
+      - DB_USER=cand_upk1
+      - DB_PASS=E66YEUd7b0lozdzd
+    depends_on:
+      - n2g-db
+      # - mysql_localdb
+
+  n2g-db:
+    image: mysql:latest
+    # volumes:
+    #   - dev-db-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=E66YEUd7b0lozdzd
+      - MYSQL_DB_HOST=candidaterds.n2g-dev.net
+      - MYSQL_DB_NAME=cand_upk1
+      - MYSQL_DB_USERNAME=cand_upk1
+      - MYSQL_DB_PASSWORD=E66YEUd7b0lozdzd
     ports:
       - "3306:3306"
     # hostname: candidaterds.n2g-dev.net
+  # mysql_localdb:
+  #   image: mysql:latest
+  #   volumes:
+  #     - local-db-data:/var/lib/mysql
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=FWE32fds!@#fd43FM4d
+  #     - MYSQL_DATABASE=mysql_localdb
+  #     # - MYSQL_USER=root
+  #     # - MYSQL_PASSWORD=FWE32fds!@#fd43FM4d
+  #   ports:
+  #     - "3306:3306"
+    # hostname: candidaterds.n2g-dev.net
 
-volumes:
-  local-db-data:
+# volumes:
+#   local-db-data:
 
 
 #     environment:
