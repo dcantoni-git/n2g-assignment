@@ -2,7 +2,7 @@
 Assignment for the backend engineer position.
 
 # App Description
-I built a REST API using Python Django and the Django REST Framework. I used Docker to containerize the application. I also used GitHub Actions and Workflows for automatic testing and linting. The unit tests were made a local mysql database, because i didn't have permissions to create a test database on the net2grid host. When the development was finished, I used the remote net2grid database that I was given and did manual tests.
+I built a REST API using Python Django and the Django REST Framework. I used Docker to containerize the application. I also used GitHub Actions and Workflows for automatic testing and linting. The unit tests were made on a local mysql database, because i didn't have permissions to create a test database on the net2grid host. When the development was finished, I used the remote net2grid database that I was given and did manual tests.
 
 To run the application you need to configure the .env files (were sent via e-mail) and run "docker-compose build" and "docker-compose up".
 
