@@ -113,7 +113,7 @@ class StoreToDatabaseView(APIView):
         messages_stored_in_db = 0
         try:
             for i in range(number_of_messages):
-                method_frame, header, body = channel.basic_get(queue='cand_upk1_results', auto_ack=True)
+                method_frame, header, body = channel.basic_get(queue='cand_upk1_results', auto_ack=True)  # noqa: E501
                 if body is not None:
                     body_dict = json.loads(body)
                     routing_key_list = method_frame.routing_key.split('.')
@@ -121,10 +121,10 @@ class StoreToDatabaseView(APIView):
                     message = models.Message(
                         user=user,
                         gatewayEui=hex(int(routing_key_list[0]))[2:],
-                        profileId='0x' + hex(int(routing_key_list[1]))[2:].zfill(4),
-                        endpointId='0x' + hex(int(routing_key_list[2]))[2:].zfill(2),
-                        clusterId='0x' + hex(int(routing_key_list[3]))[2:].zfill(4),
-                        attributeId='0x' + hex(int(routing_key_list[4]))[2:].zfill(4),
+                        profileId='0x' + hex(int(routing_key_list[1]))[2:].zfill(4),  # noqa: E501
+                        endpointId='0x' + hex(int(routing_key_list[2]))[2:].zfill(2),  # noqa: E501
+                        clusterId='0x' + hex(int(routing_key_list[3]))[2:].zfill(4),  # noqa: E501
+                        attributeId='0x' + hex(int(routing_key_list[4]))[2:].zfill(4),  # noqa: E501
                         value=body_dict['value'],
                         timestamp=body_dict['timestamp']
                     )
@@ -141,7 +141,7 @@ class StoreToDatabaseView(APIView):
             elif messages_stored_in_db == 1:
                 db_msg = "1 message was stored in the database."
             else:
-                db_msg = f'{messages_stored_in_db} message were stored in the database.'
+                db_msg = f'{messages_stored_in_db} message were stored in the database.'  # noqa: E501
             res = {
                 'db_msg': db_msg
             }
@@ -149,18 +149,18 @@ class StoreToDatabaseView(APIView):
 
         except ValueError as e:
             error_msg = {
-            'value_error': str(e)
+                'value_error': str(e)
             }
             return Response(error_msg, status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             error_msg = {
-            'error_msg': str(e)
+                'error_msg': str(e)
             }
             return Response(error_msg, status.HTTP_400_BAD_REQUEST)
 
 
 class StoreToDatabaseContinuousView(APIView):
-    """Establish a continuous listening to the results queue. NOT RECOMMENDED, FOR DEMO PURPOSES ONLY! It is terminated manually."""
+    """Establish a continuous listening to the results queue. NOT RECOMMENDED, FOR DEMO PURPOSES ONLY! It is terminated manually."""  # noqa: E501
     serializer_class = MessageSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
@@ -171,7 +171,7 @@ class StoreToDatabaseContinuousView(APIView):
 
         def on_message_callback(ch, method, properties, body):
             # raise pika.exceptions.StopConsuming
-            """Callback that handles the message. It stores it to database and then send the ack message for the next message."""
+            """Callback that handles the message. It stores it to database and then send the ack message for the next message."""  # noqa: E501
             body_dict = json.loads(body)
             routing_key_list = method.routing_key.split('.')
             try:
@@ -179,10 +179,10 @@ class StoreToDatabaseContinuousView(APIView):
                 message = models.Message(
                     user=user,
                     gatewayEui=hex(int(routing_key_list[0]))[2:],
-                    profileId='0x' + hex(int(routing_key_list[1]))[2:].zfill(4),
-                    endpointId='0x' + hex(int(routing_key_list[2]))[2:].zfill(2),
-                    clusterId='0x' + hex(int(routing_key_list[3]))[2:].zfill(4),
-                    attributeId='0x' + hex(int(routing_key_list[4]))[2:].zfill(4),
+                    profileId='0x' + hex(int(routing_key_list[1]))[2:].zfill(4),  # noqa: E501
+                    endpointId='0x' + hex(int(routing_key_list[2]))[2:].zfill(2),  # noqa: E501
+                    clusterId='0x' + hex(int(routing_key_list[3]))[2:].zfill(4),  # noqa: E501
+                    attributeId='0x' + hex(int(routing_key_list[4]))[2:].zfill(4),  # noqa: E501
                     value=body_dict['value'],
                     timestamp=body_dict['timestamp']
                 )
@@ -195,11 +195,11 @@ class StoreToDatabaseContinuousView(APIView):
                 error_msg = {
                     'db_error_msg': str(e)
                 }
-                raise(error_msg)
+                raise error_msg
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
         try:
-            channel.basic_consume(queue='cand_upk1_results', on_message_callback=on_message_callback)
+            channel.basic_consume(queue='cand_upk1_results', on_message_callback=on_message_callback)  # noqa: E501
             channel.start_consuming()
 
         except Exception as e:
@@ -217,8 +217,8 @@ class ShowStoredMessagesView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        """Show the stored messages in paginated format (100 messages per page)."""
-        queryset = models.Message.objects.filter(user=request.user).order_by('-timestamp')
+        """Show the stored messages in paginated format (100 messages per page)."""  # noqa: E501
+        queryset = models.Message.objects.filter(user=request.user).order_by('-timestamp')  # noqa: E501
         serializer = self.serializer_class(queryset, many=True)
         paginator = PageNumberPagination()
         paginated_queryset = paginator.paginate_queryset(queryset, request)

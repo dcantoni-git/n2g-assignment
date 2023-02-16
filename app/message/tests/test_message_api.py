@@ -57,12 +57,11 @@ class PrivateMessageAPITests(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_send_to_exchange(self):
-        """Test getting message from the external API and send it to exchange."""
+        """Test consuming data from the external API and send them to the exchange."""  # noqa: E501
         res = self.client.get(SEND_TO_EXCHANGE_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-
     def test_store_to_database(self):
-        """Test that the messages were retrieved from the results queue and stored to database."""
+        """Test that the messages were retrieved from the results queue and stored to database."""  # noqa: E501
         res = self.client.get(STORE_TO_DATABASE_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
