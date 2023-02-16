@@ -12,17 +12,18 @@ In order to demontrate some other features, such as token authentication, table 
 The two data tables, one for the users and the other for the messages were created using the Django ORM. But of course they could have been created with SQL commands.
 
 The message table has the following structure:
-|NAME|           |DATA TYPE|      |ADDITIONAL INFO|
-| ------------- | ------------- || ------------- |
-|id   |         | BIGINT|         | (primary key - auto generated)|
-|gatewayEui|    | VARCHAR|
-|profileId |     |VARCHAR|
-|endpointId |    |VARCHAR|
-|clusterId  |    |VARCHAR|
-|attributeId |   |VARCHAR|
-|value  |       | INT|
-|timestamp |    | BIGINT|
-|user_id |       |BIGINT |         | (foreign key)|
+
+|NAME|DATA TYPE|ADDITIONAL INFO|
+| ------------- | ------------- | ------------- |
+|id   |       BIGINT|          (primary key - auto generated)|
+|gatewayEui    | VARCHAR|     ------------- |
+|profileId      |VARCHAR|------------- |
+|endpointId     |VARCHAR|------------- |
+|clusterId     |VARCHAR|------------- |
+|attributeId    |VARCHAR|------------- |
+|value         | INT|------------- |
+|timestamp     | BIGINT|------------- |
+|user_id        |BIGINT | (foreign key)|
 
 
 The user table has the follwing structure:
