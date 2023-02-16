@@ -13,15 +13,15 @@ The two data tables, one for the users and the other for the messages were creat
 
 The message table has the following structure:
 
-id             BIGINT          (primary key - auto generated)
-gatewayEui     VARCHAR
-profileId      VARCHAR
-endpointId     VARCHAR
-clusterId      VARCHAR
-attributeId    VARCHAR
-value          INT
-timestamp      BIGINT
-user_id        BIGINT            (foreign key)
+|id   |         | BIGINT|         | (primary key - auto generated)|
+|gatewayEui|    | VARCHAR|
+|profileId |     |VARCHAR|
+|endpointId |    |VARCHAR|
+|clusterId  |    |VARCHAR|
+|attributeId |   |VARCHAR|
+|value  |       | INT|
+|timestamp |    | BIGINT|
+|user_id |       |BIGINT |         | (foreign key)|
 
 
 The user table has the follwing structure:
