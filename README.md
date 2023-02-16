@@ -6,7 +6,7 @@ I built a REST API using Python Django and the Django REST Framework. I used Doc
 
 To run the application you need to configure the .env files (were sent via e-mail) and run "docker-compose build" and "docker-compose up".
 
-In order to demontrate some other features, such as token authentication, table relations, filtering and pagination, I created a "user" app. Because the API had no authentication, I thought it would be a good practice to add authentication and tracability for the messages. That means the application stores the id of the user who used the API and it offers the ability to retrieve the messages that were sent by each user. 
+In order to demontrate some other features, such as token authentication, table relations, filtering and pagination, I created a "user" app. Due to the fact that the external API had no authentication, I thought it would be a good practice to add authentication and tracability for the messages. That means the application stores the id of the user who used the API and it offers the ability to retrieve the messages that were sent by each user. 
 
 # Database Tables
 The two data tables, one for the users and the other for the messages were created using the Django ORM. But of course they could have been created with SQL commands.
