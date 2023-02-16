@@ -12,7 +12,8 @@ In order to demontrate some other features, such as token authentication, table 
 The two data tables, one for the users and the other for the messages were created using the Django ORM. But of course they could have been created with SQL commands.
 
 The message table has the following structure:
-
+|NAME|           |DATA TYPE|      |ADDITIONAL INFO|
+| ------------- | ------------- || ------------- |
 |id   |         | BIGINT|         | (primary key - auto generated)|
 |gatewayEui|    | VARCHAR|
 |profileId |     |VARCHAR|
