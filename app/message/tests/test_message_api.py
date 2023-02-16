@@ -8,7 +8,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
-SEND_TO_EXCHANGE_URL = reverse('message:send_to_exchange')
+SEND_TO_EXCHANGE_URL = reverse('message:send_to_exchange', args=[10])
 STORE_TO_DATABASE_URL = reverse('message:store_to_database', args=[10])
 SHOW_STORED_MESSAGES_URL = reverse('message:show_stored_messages')
 
