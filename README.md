@@ -28,14 +28,16 @@ The message table has the following structure:
 
 The user table has the follwing structure:
 
-id             BIGINT          (primary key - auto generated)
-email          VARCHAR          Unique
-username       VARCHAR
-password       VARCHAR
-last_login     DATETIME
-is_active      TINYINT
-is_staff       TINYINT
-is_superuser   TINYINT
+|NAME|DATA TYPE|ADDITIONAL INFO|
+| ------------- | ------------- | ------------- |
+|id         |    BIGINT        |  (primary key - auto generated)|
+|email      |    VARCHAR     |     Unique|
+|username   |    VARCHAR| ------------- |
+|password   |    VARCHAR| ------------- |
+|last_login  |   DATETIME| ------------- |
+|is_active  |    TINYINT| ------------- |
+|is_staff  |     TINYINT| ------------- |
+|is_superuser |  TINYINT| ------------- |
 
 # API endpoints
 The API endpoints were automatically documented using swaggerUI and the can be found in the url 127.0.0.1/api/docs
